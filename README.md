@@ -19,5 +19,6 @@ The relays in this example are used as followes
  * ["10G"]  = "FF050006FF0079E5", -- Relay 7 (3cm)  
  * ["24G"]  = "FF050007FF002825"  -- Relay 8 (1.2cm)
 
-## Improvements: 
-One relay maybe used as default switched to a dummyload for resilance.
+## pending Improvements/tbd: 
+- One relay maybe used as default switched to a dummyload for resilance.
+- power settings for TRX for specific bands
