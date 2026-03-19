@@ -1,0 +1,87 @@
+-- onBandChange.wts
+-- Win-Test event script for switching transverter relays using Modbus_Relay X8_V2 Card
+-- (C) 2026 Jens Wagner, DH1AKY
+
+-- This code is released under GPLv3 
+
+-- This program is free software: you can redistribute it and/or modify
+-- it under the terms of the GNU General Public License as published by
+-- the Free Software Foundation, either version 3 of the License, or
+-- (at your option) any later version.
+
+-- This program is distributed in the hope that it will be useful,
+-- but WITHOUT ANY WARRANTY; without even the implied warranty of
+-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-- GNU General Public License for more details.
+
+-- You should have received a copy of the GNU General Public License
+-- along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+-- Prerequisites: 
+-- Win-Test V.4.46.0 and above, onBandChange event was introduced since that version
+-- The use of USB FTDI Adapters is recommended because of Windows enumeration issues with CHG34x chips
+--
+-- Change local port in the next line to the port your RS485 is attached to. 
+
+local port = "COM8" 
+local MB_OK = 0x00000000
+local currentBand = wtRadio1:GetBand()
+
+-- Helper function: HEX to Binary
+local function hex2bin(hex)
+    return (hex:gsub('..', function(cc)
+        return string.char(tonumber(cc, 16))
+    end))
+end
+
+-- Modbus commands for Slave ID 255 (0xFF)
+local cmds = {
+    -- Format: FF 05 [Address High/Low] [Value High/Low] [CRC Low/High]
+    ["144"]  = "FF050000FF0099E4", -- Relay 1 (2m) 
+    ["432"]  = "FF050001FF00C824", -- Relay 2 (70cm) 
+    ["1296"] = "FF050002FF003824", -- Relay 3 (23cm) 
+    ["2320"] = "FF050003FF0069E4", -- Relay 4 (13cm) 
+    ["3400"] = "FF050004FF00D825", -- Relay 5 (9cm)  
+    ["5700"] = "FF050005FF0089E5", -- Relay 6 (6cm)  
+    ["10G"]  = "FF050006FF0079E5", -- Relay 7 (3cm)  
+    ["24G"]  = "FF050007FF002825"  -- Relay 8 (1.2cm)
+}
+
+-- Command to switch OFF ALL relays at once (Important for clean switching)
+local cmd_all_off = "FF0F000000080100705D"
+
+local hex_relay = cmds[tostring(currentBand)]
+
+if hex_relay then
+    -- Initialize Port
+    os.execute("mode " .. port .. " BAUD=9600 PARITY=N DATA=8 STOP=1 > nul")
+
+    local f = io.open(port, "wb")
+    if f then
+        -- 1. First, switch everything off
+        f:write(hex2bin(cmd_all_off))
+        f:flush()
+        
+		
+        -- Short pause for Modbus processing
+        local start = os.clock()
+        while os.clock() - start < 0.1 do end 
+        
+        -- 2. Then switch on the specific band relay
+        f:write(hex2bin(hex_relay))
+        f:flush()
+        f:close()
+        -- Optional: Debug Info
+        -- wtApp:MessageBox("Band " .. currentBand .. " active (Relay switched)", MB_OK, wtCurrentScript)
+    else
+        wtApp:MessageBox("ERROR: Port " .. port .. " busy!", MB_OK, wtCurrentScript)
+    end
+else
+    -- If band is not in list, switch everything OFF for safety
+    local f = io.open(port, "wb")
+    if f then
+        f:write(hex2bin(cmd_all_off))
+        f:close()
+    end
+end
