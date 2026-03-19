@@ -7,7 +7,7 @@ Credits: Thanks to Laurent (Larry) Haas, F6FVY and Bob Wilson, N6TV for the tips
 
 The code is released under GPLv3
 
-# Relay coding
+## Relay coding
 The relays in this example are used as followes
 
  * ["144"]  = "FF050000FF0099E4", -- Relay 1 (2m) 
@@ -19,5 +19,5 @@ The relays in this example are used as followes
  * ["10G"]  = "FF050006FF0079E5", -- Relay 7 (3cm)  
  * ["24G"]  = "FF050007FF002825"  -- Relay 8 (1.2cm)
 
-# Improvements: 
+## Improvements: 
 One relay maybe used as default switched to a dummyload for resilance.
