@@ -5,4 +5,4 @@ This is a simple Lua script for Win-Test for switching the GHz bands using a Mod
 
 Credits: Thanks to Laurent (Larry) Haas, F6FVY and Bob Wilson, N6TV for the tips creating that code.
 
-The code is released unser GPLv3
+The code is released under GPLv3
